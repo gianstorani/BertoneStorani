@@ -1,110 +1,92 @@
 import itertools
-"""" descomentar esto
 from simpleai.search import (CspProblem, backtrack, min_conflicts,
                              MOST_CONSTRAINED_VARIABLE,
                              LEAST_CONSTRAINING_VALUE,
                              HIGHEST_DEGREE_VARIABLE)
-from simpleai.search.csp import _find_conflicts
-"""
-from datetime import datetime
+def Problema_csp_Charlas():
+	variables = [
+	'DjgG', #0   40 personas_   computadoras
+	'IntoP',#1                  computadoras_                    turno mañana
+	'Div',#2     150 personas_               proyector/audio_    turno tarde     unica charla en horario
+	'DevP',#3    150 personas_               proyector/audio_    turno tarde_    unica charla en horario
+	'ApiDjg',#4                              proyector
+	'DSA',#5                                                                     planta baja
+	'Unitst',#6                              proyector
+	'EditCP',#7                              proyector/audio
+	'MscP',#8    >60 personas_               proyector
+	'Neg',#9                                                     turno mañana_   42/lab
+	'AnImg',#10                                                                   magna/42
+	'SatEsp',#11                              proyector_          turno tarde
+	'PubLib',#12                              proyector
+	'Pand'#:13                                proyector_                          planta alta
+	]
 
-Charlas = [
-    'DjgG', #   40 personas_   computadoras
-    'IntoP',#                  computadoras_                    turno mañana
-    'Div',#     150 personas_               proyector/audio_    turno tarde     unica charla en horario
-    'DevP',#    150 personas_               proyector/audio_    turno tarde_    unica charla en horario
-    'ApiDjg',#                              proyector
-    'DSA',#                                                                     planta baja
-    'Unitst',#                              proyector
-    'EditCP',#                              proyector/audio
-    'MscP',#    >60 personas_               proyector
-    'Neg',#                                                     turno mañana_   42/lab
-    'AnImg',#                                                                   magna/42
-    'SatEsp',#                              proyector_          turno tarde
-    'PubLib',#                              proyector
-    'Pand'#:                                proyector_                          planta alta
-]
-horarios = [10,11,14,15,16,17]
-Aulas = [
-    1,#Magna:   200per  _pBaja  _proyector/audio
-    2,#42:      100per  _pAlta  _proyector
-    3,#Lab:     50per   _pBaja  _computadoras
-]
+	aulas_disponibles = { 'DjgG':[3],'IntoP':[3],'Div':[1],'DevP':[1],'ApiDjg':[1,2],'DSA':[1,3],'Unitst':[1,2],
+	'EditCP':[1],'MscP':[1,2],'AnImg':[1,2],'SatEsp':[1,2],'PubLib':[1,2],'Pand':[2] }
 
- # CUANDO AGREGO EL DOMINIO PARA CHARLAS[X] TENGO QUE AGREGARLE LA LISTA DE HORARIOS POSIBLES (Ej.:(Aula[3], (10,11,12)
-    # o por cada horario como unico Ej.: (Aula[3],10) (Aula[3],11) (Aula[3],12) -> La respuesta correcta es esta ultima
-def generar_problema_charlas():
+	horarios = [10,11,14,15,16,17]
 
-    variables = Charlas
-    Dom = {variable: [] for variable in variables}
-    for horario in horarios:
-        Dom[Charlas[0]].append((Aulas[3],horario))
-        if horario <12: #charlas solo por la mañana
-            Dom[Charlas[1]].append((Aulas[3],horario))
-            Dom[Charlas[9]].append((aulas, horario) for aulas in Aulas if aulas != 1)
-        if horario >=12: #charlas solo por la tarde
-            Dom[Charlas[2]].append((Aulas[1],horario))
-            Dom[Charlas[3]].append((Aulas[1],horario))
-            Dom[Charlas[11]].append((aulas, horario) for aulas in Aulas if aulas != 3)
-        Dom[Charlas[4]].append((aulas,horario)for aulas in Aulas if aulas!=3)
-        Dom[Charlas[5]].append((aulas,horario)for aulas in Aulas if aulas!=2)
-        Dom[Charlas[6]].append((aulas,horario)for aulas in Aulas if aulas!=3)
-        Dom[Charlas[7]].append((Aulas[1],horario))
-        Dom[Charlas[8]].append((aulas,horario)for aulas in Aulas if aulas!=3)
+	dominios = {}
 
-        Dom[Charlas[10]].append((aulas,horario)for aulas in Aulas if aulas!=3)
+	for charla,aula in aulas_disponibles.items():
+		dominios[charla] = []
 
-        Dom[Charlas[12]].append((aulas,horario)for aulas in Aulas if aulas!=3)
-        Dom[Charlas[13]].append((Aulas[2],horario))
+	for charla, aulas in aulas_disponibles.items():
+		dominios = []
+		for aula in aulas:
+			if charla in dominios:
+				for horas in horarios():
+					if (horas <12) and ((charla=='IntoP') or (charla=='Neg')): #charlas solo por la mañana
+						dominios[charla].append((aula,hora))
+					elif horas >=12 and ((charla=='Div') or (charla=='DevP') or (charla=='SatEsp')): #charlas solo por la tarde
+						dominios[charla].append((aula,hora))
+					dominios[charla].append((aula,hora))
 
-    restricciones = []
+	restricciones = []
 
-    for vars in itertools.combinations(variables,2):
-        restricciones.append(((vars[0],vars[1]), charla_asig))
+	for charla1, charla2 in itertools.combinations(variables,2):
+		restricciones.append(((charla1,charla2),charla_asig))
 
-    for var in variables:
-        if var != Charlas[2]:
-            restricciones.append(((Charlas[2],var),charla_unica))
-        if var != Charlas[3]:
-            restricciones.append(((Charlas[3],var),charla_unica))
-    return  #CspProblem(variables, Dom, restricciones)
+	for var in variables:
+		if var != variables[2]:
+			restricciones.append(((variables[2],var),charla_unica))
+		if var != variables[3]:
+			restricciones.append(((variables[3],var),charla_unica))
+	
+
+	return CspProblem(variables, dominios, restricciones)
 
 
 #no debe haber otra charla en horario para Charla[3] y Charla[4]
-def charla_unica(var1, var2):
-    return var1[0][1] != var2[0][1]
+def charla_unica(vars, vals):
+	return vals[0][1] != vals[0][1]
+
 
 #no debe haber charlas asignadas a un mismo horario misma aula
 def charla_asig(vars, vals):
-    return vals[0] != vals[1]
+	return vals[0] != vals[1]
 
 def resolver(metodo_busqueda, iteraciones):
-    problema = generar_problema_charlas()
+	problema = Problema_csp_Charlas()
 
-  #  if metodo_busqueda == "backtrack":         descomentar esto
-        #resultado = backtrack(problema)
+	if metodo_busqueda == "backtrack":
+		resultado = backtrack(problema)
 
-   # elif metodo_busqueda == "min_conflicts":
-        #resultado = min_conflicts(problema, iterations_limit=iteraciones)
+		#resultado = backtrack(problema, variable_heuristic=MOST_CONSTRAINED_VARIABLE, value_heuristic=LEAST_CONSTRAINING_VALUE)
+	elif metodo_busqueda == "min_conflicts":
+		resultado = min_conflicts(problema, iterations_limit=iteraciones)
 
-    return #resultado
+	return resultado
 
+metodo = "backtrack"
+iteraciones = None
+#viewer = BaseViewer()
 
-if __name__ == '__main__':
-    metodo = "backtrack"
-    iteraciones = None
-    #viewer = BaseViewer()
+#metodo = "min_conflicts"
+#iteraciones = 100
 
-    #metodo = "min_conflicts"
-    #iteraciones = 100
-
-    inicio = datetime.now()
-    result = resolver(metodo, iteraciones)
-    print("tiempo {}".format((datetime.now() - inicio).total_seconds()))
-    print(result)
-    print(repr(result))
-
-
-    #problema = generar_problema_charlas()
-    #conflictos = _find_conflicts(problema, resultado)
-    #print("Numero de conflictos en la solucion: {}".format(len(conflictos)))
+inicio = datetime.now()
+result = resolver(metodo, iteraciones)
+print("tiempo {}".format((datetime.now() - inicio).total_seconds()))
+print(result)
+print(repr(result))

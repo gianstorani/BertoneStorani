@@ -37,6 +37,7 @@ class entrega1(SearchProblem):
 			piratas.pop(pos_pirata)
 		else:
 			if (fila==filaisla) and (columna==colisla):
+				print(barco)
 				barco[2] = 1
 			barco[0]= fila
 			barco[1]= columna
@@ -109,9 +110,9 @@ viewer = WebViewer()
 #viewer = BaseViewer()
 
 #metodo = "greedy"
-#metodo = "breadth_first"
+metodo = "breadth_first"
 #metodo = "astar"
-metodo = "uniform_cost"
+#metodo = "uniform_cost"
 #metodo = "depth_first"
 
 franceses = [(0,2), (0,3), (1,2), (1,3), (2,1), (2,2), (2,3), (3,0), (3,1), (3,2), (4,0), (4,1), (5,0)]
@@ -119,19 +120,19 @@ piratas = [(4,4,0), (4,5,0), (5,4,0)]
 
 result = resolver(metodo, franceses, piratas)
 
-print("#" * 80)
+print("#" * 100)
 print("Franceses:")
 print(franceses)
 print("Piratas:")
 print(piratas)
-print("#" * 80)
+print("#" * 100)
 print("Estado final: {}".format(result.state))
-print("#" * 80)
+print("#" * 100)
 for accion, resultado in enumerate(result.path()):
 	print('Accion',accion, ':', resultado[0])
 	print('Resultado:', resultado[1])
 
-print("#" * 80)
+print("#" * 100)
 print("Nodos Visitados: {}".format(viewer.stats['visited_nodes']))
 print("Profundidad solucion: {}".format(len(result.path())))
 print("Costo: {}".format(result.cost))
